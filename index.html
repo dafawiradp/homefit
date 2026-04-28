@@ -295,11 +295,8 @@
         <p class="text-slate-400 mb-10">Pump up the energy with background beats.</p>
 
         <div class="bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-700">
-          <!-- Audio element (no src — user can add their own audio file) -->
-          <audio id="bg-music" preload="none">
-            <source src="audio/workout.mp3" type="audio/mpeg" />
-            <source src="audio/workout.ogg" type="audio/ogg" />
-          </audio>
+          <!-- Audio element — add your own src to enable playback -->
+          <audio id="bg-music" preload="none"></audio>
 
           <!-- Equalizer (visible when playing) -->
           <div id="equalizer" class="hidden justify-center gap-1 mb-6 text-emerald-400 h-8 items-end">
@@ -371,6 +368,9 @@
     #spotify-player {
       width: 320px;
       height: 352px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
       transition: opacity 200ms ease, transform 200ms ease;
       transform-origin: bottom right;
     }
@@ -400,8 +400,8 @@
   </style>
 
   <div style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-    <div id="spotify-player" class="spotify-collapsed" style="border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-      <iframe data-testid="embed-iframe" style="border-radius:12px;display:block;width:320px;height:352px;" src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0" width="320" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <div id="spotify-player" class="spotify-collapsed">
+      <iframe data-testid="embed-iframe" style="display:block;border-radius:12px;" src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0" width="320" height="352" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <button id="spotify-toggle" aria-label="Open Spotify player" title="Open Spotify">
       <svg id="spotify-icon-open" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white">
