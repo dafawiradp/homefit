@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeFit — Your Home Workout Companion</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ── Custom font assignments ── */
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* ── Hero fade-in animation ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(1rem); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #hero.visible {
+      animation: fadeSlideUp 600ms ease forwards;
+    }
+
+    /* ── Scroll-reveal ── */
+    .reveal-section {
+      opacity: 0;
+      transform: translateY(1.5rem);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+    .reveal-section.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Timer ring ── */
+    #timer-ring circle {
+      transition: stroke-dashoffset 1s linear;
+    }
+    .timer-warning #timer-display {
+      color: #f59e0b;
+    }
+    .timer-warning #timer-ring circle {
+      stroke: #f59e0b;
+    }
+
+    /* ── Equalizer animation ── */
+    @keyframes equalizerBar {
+      0%, 100% { transform: scaleY(0.3); }
+      50%       { transform: scaleY(1); }
+    }
+    .eq-bar {
+      display: inline-block;
+      width: 4px;
+      height: 20px;
+      background: currentColor;
+      border-radius: 2px;
+      transform-origin: bottom;
+      animation: equalizerBar 0.8s ease-in-out infinite;
+    }
+    .eq-bar:nth-child(2) { animation-delay: 0.15s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.3s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.45s; }
+
+    /* ── Nav scrolled state ── */
+    #main-nav.scrolled {
+      background: rgba(15, 23, 42, 0.98);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Active exercise card pulse ── */
+    @keyframes cardPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+      50%  { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .exercise-card.active {
+      animation: cardPulse 600ms ease forwards;
+      border-color: #10b981;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       FALLBACK STYLES — applied when Tailwind CDN fails to load.
+       These provide a readable, functional layout using plain CSS.
+    ───────────────────────────────────────────────────────────── */
+    .fallback-active body {
+      margin: 0;
+      background: #0f172a;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    .fallback-active nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #1e293b;
+    }
+    .fallback-active nav ul {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .fallback-active main {
+      padding-top: 5rem;
+    }
+    .fallback-active section {
+      padding: 3rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .fallback-active #exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .fallback-active .exercise-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .fallback-active button {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .fallback-active h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .fallback-active h2 { font-size: 1.75rem; margin-bottom: 1rem; }
+    .fallback-active p  { line-height: 1.6; }
+    .fallback-active footer {
+      text-align: center;
+      padding: 2rem;
+      background: #1e293b;
+      color: #94a3b8;
+    }
+  </style>
+
+  <!-- Detect Tailwind CDN failure and activate fallback styles -->
+  <script>
+    (function () {
+      window.addEventListener('load', function () {
+        // Check if Tailwind injected any styles by looking for a known utility class
+        var probe = document.createElement('div');
+        probe.className = 'hidden';
+        probe.style.display = 'block'; // override so we can detect
+        document.body.appendChild(probe);
+        var computed = window.getComputedStyle(probe).display;
+        document.body.removeChild(probe);
+        // If Tailwind is loaded, .hidden sets display:none; if not, it stays 'block'
+        if (computed !== 'none') {
+          document.documentElement.classList.add('fallback-active');
+        }
+      });
+    })();
+  </script>
+</head>
+
+<body class="bg-slate-900 text-slate-100 overflow-x-hidden">
+
+  <!-- ── Navigation ── -->
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-sm shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2 py-3">
+      <span class="font-heading text-2xl font-black text-emerald-400 tracking-tight">HomeFit</span>
+      <button id="hamburger" class="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors min-h-[44px] min-w-[44px]" aria-label="Toggle menu" aria-expanded="false">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <ul id="nav-links" class="hidden lg:flex items-center gap-3 w-full lg:w-auto">
+        <li><button id="cta-start-nav" class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Start Workout</button></li>
+        <li><button id="cta-play" class="bg-violet-500 hover:bg-violet-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Play Music</button></li>
+        <li><button id="cta-motivated-nav" class="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Get Motivated</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="pt-16">
+
+    <!-- ── Hero Section ── -->
+    <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 py-20 opacity-0 translate-y-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 relative overflow-hidden">
+      <!-- Subtle radial glow -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_70%)] pointer-events-none"></div>
+      <div class="max-w-3xl mx-auto relative z-10">
+        <div class="text-7xl mb-6">🏋️</div>
+        <h1 class="font-heading text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight">
+          Home<span class="text-emerald-400">Fit</span>
+        </h1>
+        <p class="text-xl sm:text-2xl text-slate-300 mb-8 leading-relaxed">
+          No gym. No excuses. Just you and your best workout.
+        </p>
+        <div id="reminder-banner" class="bg-emerald-900/50 border border-emerald-500/40 rounded-xl px-6 py-4 mb-8 text-emerald-300 text-lg font-medium">
+          💡 Just 10 minutes today is better than nothing. Let's go!
+        </div>
+        <button id="cta-start" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-heading font-bold text-xl px-10 py-4 rounded-xl shadow-lg shadow-emerald-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
+          Start Workout →
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Workout Section ── -->
+    <section id="workout" class="py-20 px-4 reveal-section bg-slate-900">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="font-heading text-4xl font-black text-center text-white mb-4">Today's Workout</h2>
+        <p class="text-center text-slate-400 mb-10 text-lg">Complete each exercise in order. Hit Start Workout to begin!</p>
+
+        <!-- Progress Bar -->
+        <div class="mb-10 max-w-2xl mx-auto">
+          <div class="flex justify-between text-sm text-slate-400 mb-2">
+            <span>Progress</span>
+            <span id="progress-label">0 / 6</span>
+          </div>
+          <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+            <div id="progress-bar-fill" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Exercise Cards Grid -->
+        <div id="exercise-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Cards injected by WorkoutSessionController.renderCards() -->
+        </div>
+
+        <!-- Completion Message (hidden initially) -->
+        <div id="completion-message" class="hidden text-center mt-12 py-12 px-6 bg-emerald-900/40 border border-emerald-500/30 rounded-2xl">
+          <div class="text-6xl mb-4">🏆</div>
+          <h3 class="font-heading text-3xl font-black text-emerald-400 mb-3">Workout Complete!</h3>
+          <p id="completion-quote-text" class="text-slate-300 text-lg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Timer Section ── -->
+    <section id="timer" class="py-20 px-4 reveal-section bg-slate-800/50 border-y border-slate-700/50">
+      <div class="max-w-md mx-auto text-center bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700">
+        <h2 class="font-heading text-4xl font-black text-white mb-10">Exercise Timer</h2>
+
+        <!-- SVG Ring Timer -->
+        <div class="relative inline-flex items-center justify-center mb-8">
+          <svg id="timer-ring" class="w-48 h-48 -rotate-90" viewBox="0 0 120 120">
+            <!-- Background track -->
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#334155" stroke-width="8"/>
+            <!-- Progress arc -->
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="8"
+              stroke-linecap="round"
+              stroke-dasharray="339.29"
+              stroke-dashoffset="0"
+              id="timer-ring-circle"/>
+          </svg>
+          <div class="absolute flex flex-col items-center">
+            <span id="timer-display" class="font-heading text-5xl font-black text-white">0</span>
+            <span class="text-slate-400 text-sm mt-1">seconds</span>
+          </div>
+        </div>
+
+        <!-- Current Exercise Name -->
+        <p id="timer-exercise-name" class="text-slate-300 text-lg mb-6">—</p>
+
+        <!-- Pause / Resume Button -->
+        <button id="timer-pause-resume" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px]" disabled>
+          Pause
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Music Section ── -->
+    <section id="music" class="py-20 px-4 reveal-section bg-slate-900">
+      <div class="max-w-lg mx-auto text-center">
+        <h2 class="font-heading text-4xl font-black text-white mb-4">Workout Music</h2>
+        <p class="text-slate-400 mb-10">Pump up the energy with background beats.</p>
+
+        <div class="bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-700">
+          <!-- Audio element (no src — user can add their own audio file) -->
+          <audio id="bg-music" preload="none">
+            <source src="audio/workout.mp3" type="audio/mpeg" />
+            <source src="audio/workout.ogg" type="audio/ogg" />
+          </audio>
+
+          <!-- Equalizer (visible when playing) -->
+          <div id="equalizer" class="hidden justify-center gap-1 mb-6 text-emerald-400 h-8 items-end">
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+          </div>
+
+          <!-- Music icon (visible when not playing) -->
+          <div id="music-icon" class="text-5xl mb-6">🎵</div>
+
+          <!-- Play / Pause Button -->
+          <button id="music-play-pause" class="bg-violet-500 hover:bg-violet-400 active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px] mb-6 block mx-auto">
+            ▶ Play
+          </button>
+
+          <!-- Volume Slider -->
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400 text-sm">🔈</span>
+            <input id="volume-slider" type="range" min="0" max="100" value="10"
+              class="flex-1 accent-violet-500 cursor-pointer min-h-[44px]"
+              aria-label="Volume" />
+            <span class="text-slate-400 text-sm">🔊</span>
+          </div>
+
+          <!-- Fallback message (hidden by default) -->
+          <p id="audio-fallback" class="hidden mt-4 text-amber-400 text-sm">
+            Audio playback is not supported in your browser.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Quotes Section ── -->
+    <section id="quotes" class="py-20 px-4 reveal-section bg-slate-800/50 border-t border-slate-700/50">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2 class="font-heading text-4xl font-black text-white mb-10">Stay Motivated</h2>
+
+        <div class="bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700 mb-8">
+          <div class="text-4xl mb-4">💬</div>
+          <blockquote id="quote-display" class="text-xl text-slate-200 italic leading-relaxed transition-opacity duration-400">
+            "The only bad workout is the one that didn't happen."
+          </blockquote>
+        </div>
+
+        <button id="cta-motivated" class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-white font-heading font-bold text-lg px-8 py-3 rounded-xl shadow-lg shadow-amber-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
+          Get Motivated ✨
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="bg-slate-800 border-t border-slate-700 py-10 px-4 text-center text-slate-400">
+    <p class="font-heading font-black text-emerald-400 text-xl mb-2">HomeFit</p>
+    <p class="text-sm mb-4">Built with 💪 for home exercisers everywhere. No gym required.</p>
+    <div class="flex justify-center gap-6 text-sm text-slate-500">
+      <span>🏋️ Strength</span>
+      <span>🏃 Cardio</span>
+      <span>🧘 Flexibility</span>
+    </div>
+    <p class="text-xs text-slate-600 mt-6">© 2024 HomeFit. All rights reserved.</p>
+  </footer>
+
+  <!-- ── Scripts (dependency order) ── -->
+  <script src="js/data.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/workout.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/hero.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      NavigationController.init();
+      HeroSection.init();
+      WorkoutTimerController.init();
+      WorkoutSessionController.init();
+      MusicPlayerController.init();
+      QuotesController.init();
+
+      // Init scroll observer + CTA button press effects
+      AnimationHelpers.initScrollObserver();
+
+      // Apply hover lift to exercise cards (rendered by WorkoutSessionController.init above)
+      AnimationHelpers.applyCardEffects();
+
+      // Wire #cta-play to also trigger music playback (in addition to scroll in nav.js)
+      var ctaPlay = document.getElementById('cta-play');
+      if (ctaPlay) {
+        ctaPlay.addEventListener('click', function () {
+          MusicPlayerController.play();
+        });
+      }
+
+      // Wire #cta-motivated to QuotesController.next()
+      var ctaMotivated = document.getElementById('cta-motivated');
+      if (ctaMotivated) {
+        ctaMotivated.addEventListener('click', function () {
+          QuotesController.next();
+        });
+      }
+
+      // Wire #cta-motivated-nav (nav button) to QuotesController.next()
+      var ctaMotivatedNav = document.getElementById('cta-motivated-nav');
+      if (ctaMotivatedNav) {
+        ctaMotivatedNav.addEventListener('click', function () {
+          QuotesController.next();
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
