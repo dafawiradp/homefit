@@ -1,6 +1,6 @@
 /**
  * NavigationController
- * Manages the fixed top nav: scroll behaviour, hamburger toggle, and smooth scrolling.
+ * Manages the fixed top nav: scroll behaviour, hamburger toggle, smooth scrolling.
  * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5
  */
 
@@ -16,19 +16,21 @@ const NavigationController = {
 
     if (!this.nav || !this.hamburger || !this.navLinks) return;
 
-    // Scroll listener — darken nav background past hero
+    // Darken nav background when scrolled past hero
     window.addEventListener('scroll', () => this.onScroll(), { passive: true });
 
     // Hamburger toggles the mobile menu
-    this.hamburger.addEventListener('click', () => this.toggleMenu());
+    this.hamburger.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent the document click-outside handler firing
+      this.toggleMenu();
+    });
 
-    // Intercept nav anchor clicks: animated scroll + close mobile menu
+    // Each nav link: smooth scroll + close menu
     const links = {
       'cta-start-nav':     'workout',
       'cta-play':          'music',
       'cta-motivated-nav': 'quotes',
     };
-
     Object.entries(links).forEach(([id, sectionId]) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -37,6 +39,21 @@ const NavigationController = {
         this.smoothScrollTo(sectionId, 500);
         this.closeMenu();
       });
+    });
+
+    // Click outside the nav → close menu (mobile only)
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth >= 1024) return;          // desktop: nothing to do
+      if (this.nav.contains(e.target)) return;        // click was inside nav
+      this.closeMenu();
+    });
+
+    // Resize to desktop → ensure menu state is clean
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        this.navLinks.classList.remove('nav-open');
+        this.hamburger.setAttribute('aria-expanded', 'false');
+      }
     });
   },
 
@@ -48,7 +65,7 @@ const NavigationController = {
 
   /**
    * Toggle mobile nav by adding/removing 'nav-open'.
-   * The CSS in <head> handles display:none / display:flex based on this class.
+   * CSS in <head> handles display:none / display:flex based on this class.
    * Requirement 7.5
    */
   toggleMenu() {
@@ -56,8 +73,9 @@ const NavigationController = {
     this.hamburger.setAttribute('aria-expanded', String(isOpen));
   },
 
+  /** Close the mobile menu if it is open. */
   closeMenu() {
-    if (window.innerWidth < 1024) {
+    if (this.navLinks.classList.contains('nav-open')) {
       this.navLinks.classList.remove('nav-open');
       this.hamburger.setAttribute('aria-expanded', 'false');
     }
@@ -71,23 +89,21 @@ const NavigationController = {
     const target = document.getElementById(sectionId);
     if (!target) return;
 
-    const duration = Math.min(700, Math.max(400, durationMs));
-    const startY   = window.scrollY;
-    const endY     = target.getBoundingClientRect().top + window.scrollY - this.nav.offsetHeight;
-    const delta    = endY - startY;
+    const duration  = Math.min(700, Math.max(400, durationMs));
+    const startY    = window.scrollY;
+    const endY      = target.getBoundingClientRect().top + window.scrollY - this.nav.offsetHeight;
+    const delta     = endY - startY;
     let   startTime = null;
 
     function ease(t) {
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
-
     function step(ts) {
       if (!startTime) startTime = ts;
       const progress = Math.min((ts - startTime) / duration, 1);
       window.scrollTo(0, startY + delta * ease(progress));
       if (progress < 1) requestAnimationFrame(step);
     }
-
     requestAnimationFrame(step);
   },
 };
