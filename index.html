@@ -91,17 +91,19 @@
       justify-content: center;
     }
 
-    /* Nav list: hidden on mobile by default */
+    /* Nav list: FORCE hidden on mobile by default.
+       !important beats any Tailwind utility that loads after this block. */
     #nav-links {
-      display: none;
+      display: none !important;
       list-style: none;
       margin: 0;
       padding: 0;
     }
 
-    /* .nav-open → slide the list into view on mobile */
+    /* JS adds .nav-open → reveal the menu.
+       !important overrides the bare #nav-links rule above. */
     #nav-links.nav-open {
-      display: flex;
+      display: flex !important;
       flex-direction: column;
       align-items: stretch;
       gap: 6px;
@@ -115,15 +117,16 @@
       justify-content: center;
     }
 
-    /* Desktop (≥ 1024px): hamburger gone, nav always a row */
+    /* Desktop (≥ 1024px): hamburger gone, nav always a row.
+       Both selectors use !important so they win over the mobile rules above. */
     @media (min-width: 1024px) {
       #hamburger {
-        display: none;
+        display: none !important;
       }
       #nav-links,
       #nav-links.nav-open {
-        display: flex;
-        flex-direction: row;
+        display: flex !important;
+        flex-direction: row !important;
         align-items: center;
         gap: 12px;
         width: auto;
