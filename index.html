@@ -47,12 +47,8 @@
     #timer-ring circle {
       transition: stroke-dashoffset 1s linear;
     }
-    .timer-warning #timer-display {
-      color: #f59e0b;
-    }
-    .timer-warning #timer-ring circle {
-      stroke: #f59e0b;
-    }
+    .timer-warning #timer-display { color: #f59e0b; }
+    .timer-warning #timer-ring circle { stroke: #f59e0b; }
 
     /* ── Equalizer animation ── */
     @keyframes equalizerBar {
@@ -78,6 +74,47 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
     }
 
+    /* ── Mobile hamburger nav ──
+       #nav-links is hidden on mobile by default.
+       JS toggles .nav-open to show it.
+       On lg+ screens the Tailwind lg:flex class takes over. */
+    #nav-links {
+      display: none;
+    }
+    #nav-links.nav-open {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 0;
+      list-style: none;
+      margin: 0;
+    }
+    #nav-links.nav-open li {
+      width: 100%;
+    }
+    #nav-links.nav-open li a {
+      display: flex;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    @media (min-width: 1024px) {
+      #nav-links {
+        display: flex !important;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        width: auto;
+        padding: 0;
+        list-style: none;
+        margin: 0;
+      }
+      #nav-links li a {
+        width: auto;
+      }
+    }
+
     /* ── Active exercise card pulse ── */
     @keyframes cardPulse {
       0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
@@ -89,274 +126,7 @@
       border-color: #10b981;
     }
 
-    /* ─────────────────────────────────────────────────────────────
-       FALLBACK STYLES — applied when Tailwind CDN fails to load.
-       These provide a readable, functional layout using plain CSS.
-    ───────────────────────────────────────────────────────────── */
-    .fallback-active body {
-      margin: 0;
-      background: #0f172a;
-      color: #f1f5f9;
-      overflow-x: hidden;
-    }
-    .fallback-active nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      background: #1e293b;
-    }
-    .fallback-active nav ul {
-      display: flex;
-      gap: 1rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .fallback-active main {
-      padding-top: 5rem;
-    }
-    .fallback-active section {
-      padding: 3rem 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .fallback-active #exercise-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .fallback-active .exercise-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    .fallback-active button {
-      background: #10b981;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      min-height: 44px;
-      min-width: 44px;
-    }
-    .fallback-active h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-    .fallback-active h2 { font-size: 1.75rem; margin-bottom: 1rem; }
-    .fallback-active p  { line-height: 1.6; }
-    .fallback-active footer {
-      text-align: center;
-      padding: 2rem;
-      background: #1e293b;
-      color: #94a3b8;
-    }
-  </style>
-
-  <!-- Detect Tailwind CDN failure and activate fallback styles -->
-  <script>
-    (function () {
-      window.addEventListener('load', function () {
-        // Check if Tailwind injected any styles by looking for a known utility class
-        var probe = document.createElement('div');
-        probe.className = 'hidden';
-        probe.style.display = 'block'; // override so we can detect
-        document.body.appendChild(probe);
-        var computed = window.getComputedStyle(probe).display;
-        document.body.removeChild(probe);
-        // If Tailwind is loaded, .hidden sets display:none; if not, it stays 'block'
-        if (computed !== 'none') {
-          document.documentElement.classList.add('fallback-active');
-        }
-      });
-    })();
-  </script>
-</head>
-
-<body class="bg-slate-900 text-slate-100 overflow-x-hidden">
-
-  <!-- ── Navigation ── -->
-  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-sm shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2 py-3">
-      <a href="#hero" class="font-heading text-2xl font-black text-emerald-400 tracking-tight" style="text-decoration:none;">HomeFit</a>
-      <button id="hamburger" class="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors min-h-[44px] min-w-[44px]" aria-label="Toggle menu" aria-expanded="false">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-      <ul id="nav-links" class="nav-links-mobile lg:flex items-center gap-3 w-full lg:w-auto">
-        <li><a href="#workout" id="cta-start-nav" class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Start Workout</a></li>
-        <li><a href="#spotify-section" id="cta-play" class="bg-violet-500 hover:bg-violet-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Play Music</a></li>
-        <li><a href="#quotes" id="cta-motivated-nav" class="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Get Motivated</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <main class="pt-16">
-
-    <!-- ── Hero Section ── -->
-    <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 py-20 opacity-0 translate-y-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 relative overflow-hidden">
-      <!-- Subtle radial glow -->
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_70%)] pointer-events-none"></div>
-      <div class="max-w-3xl mx-auto relative z-10">
-        <div class="text-7xl mb-6">🏋️</div>
-        <h1 class="font-heading text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight">
-          Home<span class="text-emerald-400">Fit</span>
-        </h1>
-        <p class="text-xl sm:text-2xl text-slate-300 mb-8 leading-relaxed">
-          No gym. No excuses. Just you and your best workout.
-        </p>
-        <div id="reminder-banner" class="bg-emerald-900/50 border border-emerald-500/40 rounded-xl px-6 py-4 mb-8 text-emerald-300 text-lg font-medium">
-          💡 Just 10 minutes today is better than nothing. Let's go!
-        </div>
-        <button id="cta-start" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-heading font-bold text-xl px-10 py-4 rounded-xl shadow-lg shadow-emerald-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
-          Start Workout →
-        </button>
-      </div>
-    </section>
-
-    <!-- ── Workout Section ── -->
-    <section id="workout" class="py-20 px-4 reveal-section bg-slate-900">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="font-heading text-4xl font-black text-center text-white mb-4">Today's Workout</h2>
-        <p class="text-center text-slate-400 mb-10 text-lg">Complete each exercise in order. Hit Start Workout to begin!</p>
-
-        <!-- Progress Bar -->
-        <div class="mb-10 max-w-2xl mx-auto">
-          <div class="flex justify-between text-sm text-slate-400 mb-2">
-            <span>Progress</span>
-            <span id="progress-label">0 / 6</span>
-          </div>
-          <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
-            <div id="progress-bar-fill" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <!-- Exercise Cards Grid -->
-        <div id="exercise-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Cards injected by WorkoutSessionController.renderCards() -->
-        </div>
-
-        <!-- Completion Message (hidden initially) -->
-        <div id="completion-message" class="hidden text-center mt-12 py-12 px-6 bg-emerald-900/40 border border-emerald-500/30 rounded-2xl">
-          <div class="text-6xl mb-4">🏆</div>
-          <h3 class="font-heading text-3xl font-black text-emerald-400 mb-3">Workout Complete!</h3>
-          <p id="completion-quote-text" class="text-slate-300 text-lg"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Timer Section ── -->
-    <section id="timer" class="py-20 px-4 reveal-section bg-slate-800/50 border-y border-slate-700/50">
-      <div class="max-w-md mx-auto text-center bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700">
-        <h2 class="font-heading text-4xl font-black text-white mb-10">Exercise Timer</h2>
-
-        <!-- SVG Ring Timer -->
-        <div class="relative inline-flex items-center justify-center mb-8">
-          <svg id="timer-ring" class="w-48 h-48 -rotate-90" viewBox="0 0 120 120">
-            <!-- Background track -->
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#334155" stroke-width="8"/>
-            <!-- Progress arc -->
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="8"
-              stroke-linecap="round"
-              stroke-dasharray="339.29"
-              stroke-dashoffset="0"
-              id="timer-ring-circle"/>
-          </svg>
-          <div class="absolute flex flex-col items-center">
-            <span id="timer-display" class="font-heading text-5xl font-black text-white">0</span>
-            <span class="text-slate-400 text-sm mt-1">seconds</span>
-          </div>
-        </div>
-
-        <!-- Current Exercise Name -->
-        <p id="timer-exercise-name" class="text-slate-300 text-lg mb-6">—</p>
-
-        <!-- Pause / Resume Button -->
-        <button id="timer-pause-resume" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px]" disabled>
-          Pause
-        </button>
-      </div>
-    </section>
-
-    <!-- ── Music Section ── -->
-    <section id="music" class="py-20 px-4 reveal-section bg-slate-900">
-      <div class="max-w-lg mx-auto text-center">
-        <h2 class="font-heading text-4xl font-black text-white mb-4">Workout Music</h2>
-        <p class="text-slate-400 mb-10">Pump up the energy with background beats.</p>
-
-        <div class="bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-700">
-          <!-- Spotify player is available as the floating widget (bottom-right) -->
-          <div class="text-5xl mb-4">🎵</div>
-          <p class="text-slate-300 text-lg mb-6">Your Spotify playlist is ready to go.</p>
-          <button id="music-play-pause" class="bg-[#1DB954] hover:bg-[#1ed760] active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px] block mx-auto" onclick="(function(){var p=document.getElementById('spotify-player');var io=document.getElementById('spotify-icon-open');var ic=document.getElementById('spotify-icon-close');var t=document.getElementById('spotify-toggle');if(p&&p.classList.contains('spotify-collapsed')){p.classList.remove('spotify-collapsed');if(io)io.style.display='none';if(ic)ic.style.display='block';if(t){t.title='Close Spotify';t.setAttribute('aria-label','Close Spotify player');}spotifyExpanded=true;}})()">
-            ▶ Open Spotify Player
-          </button>
-
-          <!-- Hidden audio element kept for MusicPlayerController compatibility -->
-          <audio id="bg-music" preload="none"></audio>
-          <p id="audio-fallback" class="hidden mt-4 text-amber-400 text-sm">
-            Audio playback is not supported in your browser.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Quotes Section ── -->
-    <section id="quotes" class="py-20 px-4 reveal-section bg-slate-800/50 border-t border-slate-700/50">
-      <div class="max-w-2xl mx-auto text-center">
-        <h2 class="font-heading text-4xl font-black text-white mb-10">Stay Motivated</h2>
-
-        <div class="bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700 mb-8">
-          <div class="text-4xl mb-4">💬</div>
-          <blockquote id="quote-display" class="text-xl text-slate-200 italic leading-relaxed transition-opacity duration-400">
-            "The only bad workout is the one that didn't happen."
-          </blockquote>
-        </div>
-
-        <button id="cta-motivated" class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-white font-heading font-bold text-lg px-8 py-3 rounded-xl shadow-lg shadow-amber-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
-          Get Motivated ✨
-        </button>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ── Footer ── -->
-  <footer class="bg-slate-800 border-t border-slate-700 py-10 px-4 text-center text-slate-400">
-    <p class="font-heading font-black text-emerald-400 text-xl mb-2">HomeFit</p>
-    <p class="text-sm mb-4">Built with 💪 for home exercisers everywhere. No gym required.</p>
-    <div class="flex justify-center gap-6 text-sm text-slate-500">
-      <span>🏋️ Strength</span>
-      <span>🏃 Cardio</span>
-      <span>🧘 Flexibility</span>
-    </div>
-    <p class="text-xs text-slate-600 mt-6">© 2024 HomeFit. All rights reserved.</p>
-  </footer>
-
-  <!-- ── Spotify Floating Widget ── -->
-  <style>
-    /* ── Mobile nav toggle ── */
-    @media (max-width: 1023px) {
-      .nav-links-mobile {
-        display: none;
-        flex-direction: column;
-        padding-bottom: 0.5rem;
-      }
-      .nav-links-mobile.nav-open {
-        display: flex;
-      }
-    }
-
+    /* ── Spotify floating widget ── */
     #spotify-player {
       width: min(320px, calc(100vw - 48px));
       height: 352px;
@@ -389,11 +159,266 @@
       transform: scale(1.08);
       box-shadow: 0 6px 24px rgba(29,185,84,0.7);
     }
+
+    /* ─────────────────────────────────────────────────────────────
+       FALLBACK STYLES — applied when Tailwind CDN fails to load.
+    ───────────────────────────────────────────────────────────── */
+    .fallback-active body {
+      margin: 0;
+      background: #0f172a;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    .fallback-active nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #1e293b;
+    }
+    .fallback-active #nav-links {
+      display: flex !important;
+      gap: 1rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .fallback-active main { padding-top: 5rem; }
+    .fallback-active section { padding: 3rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+    .fallback-active #exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .fallback-active .exercise-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .fallback-active button, .fallback-active a.btn {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .fallback-active h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .fallback-active h2 { font-size: 1.75rem; margin-bottom: 1rem; }
+    .fallback-active p  { line-height: 1.6; }
+    .fallback-active footer {
+      text-align: center;
+      padding: 2rem;
+      background: #1e293b;
+      color: #94a3b8;
+    }
   </style>
 
+  <!-- Detect Tailwind CDN failure and activate fallback styles -->
+  <script>
+    (function () {
+      window.addEventListener('load', function () {
+        var probe = document.createElement('div');
+        probe.className = 'hidden';
+        probe.style.display = 'block';
+        document.body.appendChild(probe);
+        var computed = window.getComputedStyle(probe).display;
+        document.body.removeChild(probe);
+        if (computed !== 'none') {
+          document.documentElement.classList.add('fallback-active');
+        }
+      });
+    })();
+  </script>
+</head>
+
+<body class="bg-slate-900 text-slate-100 overflow-x-hidden">
+
+  <!-- ── Navigation ── -->
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-sm shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2 py-3">
+      <a href="#hero" class="font-heading text-2xl font-black text-emerald-400 tracking-tight" style="text-decoration:none;">HomeFit</a>
+
+      <!-- Hamburger — visible only on mobile (< 1024px) -->
+      <button id="hamburger"
+        class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors min-h-[44px] min-w-[44px]"
+        style="display:flex;align-items:center;justify-content:center;"
+        aria-label="Toggle menu" aria-expanded="false">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Nav links — hidden on mobile until hamburger clicked; always visible on lg+ -->
+      <ul id="nav-links">
+        <li>
+          <a href="#workout" id="cta-start-nav"
+             class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center"
+             style="text-decoration:none;">Start Workout</a>
+        </li>
+        <li>
+          <a href="#music" id="cta-play"
+             class="bg-violet-500 hover:bg-violet-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center"
+             style="text-decoration:none;">Play Music</a>
+        </li>
+        <li>
+          <a href="#quotes" id="cta-motivated-nav"
+             class="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center"
+             style="text-decoration:none;">Get Motivated</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="pt-16">
+
+    <!-- ── Hero Section ── -->
+    <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 py-20 opacity-0 translate-y-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_70%)] pointer-events-none"></div>
+      <div class="max-w-3xl mx-auto relative z-10">
+        <div class="text-7xl mb-6">🏋️</div>
+        <h1 class="font-heading text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight">
+          Home<span class="text-emerald-400">Fit</span>
+        </h1>
+        <p class="text-xl sm:text-2xl text-slate-300 mb-8 leading-relaxed">
+          No gym. No excuses. Just you and your best workout.
+        </p>
+        <div id="reminder-banner" class="bg-emerald-900/50 border border-emerald-500/40 rounded-xl px-6 py-4 mb-8 text-emerald-300 text-lg font-medium">
+          💡 Just 10 minutes today is better than nothing. Let's go!
+        </div>
+        <button id="cta-start" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-heading font-bold text-xl px-10 py-4 rounded-xl shadow-lg shadow-emerald-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
+          Start Workout →
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Workout Section ── -->
+    <section id="workout" class="py-20 px-4 reveal-section bg-slate-900">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="font-heading text-4xl font-black text-center text-white mb-4">Today's Workout</h2>
+        <p class="text-center text-slate-400 mb-10 text-lg">Complete each exercise in order. Hit Start Workout to begin!</p>
+
+        <div class="mb-10 max-w-2xl mx-auto">
+          <div class="flex justify-between text-sm text-slate-400 mb-2">
+            <span>Progress</span>
+            <span id="progress-label">0 / 6</span>
+          </div>
+          <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+            <div id="progress-bar-fill" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div id="exercise-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="completion-message" class="hidden text-center mt-12 py-12 px-6 bg-emerald-900/40 border border-emerald-500/30 rounded-2xl">
+          <div class="text-6xl mb-4">🏆</div>
+          <h3 class="font-heading text-3xl font-black text-emerald-400 mb-3">Workout Complete!</h3>
+          <p id="completion-quote-text" class="text-slate-300 text-lg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Timer Section ── -->
+    <section id="timer" class="py-20 px-4 reveal-section bg-slate-800/50 border-y border-slate-700/50">
+      <div class="max-w-md mx-auto text-center bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700">
+        <h2 class="font-heading text-4xl font-black text-white mb-10">Exercise Timer</h2>
+        <div class="relative inline-flex items-center justify-center mb-8">
+          <svg id="timer-ring" class="w-48 h-48 -rotate-90" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#334155" stroke-width="8"/>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="339.29" stroke-dashoffset="0"
+              id="timer-ring-circle"/>
+          </svg>
+          <div class="absolute flex flex-col items-center">
+            <span id="timer-display" class="font-heading text-5xl font-black text-white">0</span>
+            <span class="text-slate-400 text-sm mt-1">seconds</span>
+          </div>
+        </div>
+        <p id="timer-exercise-name" class="text-slate-300 text-lg mb-6">—</p>
+        <button id="timer-pause-resume" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px]" disabled>
+          Pause
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Music Section (Spotify) ── -->
+    <section id="music" class="py-20 px-4 reveal-section bg-slate-900">
+      <div class="max-w-lg mx-auto text-center">
+        <h2 class="font-heading text-4xl font-black text-white mb-4">Workout Music</h2>
+        <p class="text-slate-400 mb-8">Your Spotify workout playlist — press play and get moving.</p>
+
+        <!-- Inline Spotify embed — this IS the music player -->
+        <div style="border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+          <iframe
+            src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0"
+            width="100%" height="352" style="display:block;border-radius:12px;"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <!-- Hidden audio element kept so music.js doesn't throw a reference error -->
+        <audio id="bg-music" preload="none"></audio>
+      </div>
+    </section>
+
+    <!-- ── Quotes Section ── -->
+    <section id="quotes" class="py-20 px-4 reveal-section bg-slate-800/50 border-t border-slate-700/50">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2 class="font-heading text-4xl font-black text-white mb-10">Stay Motivated</h2>
+        <div class="bg-slate-800 rounded-2xl p-10 shadow-xl border border-slate-700 mb-8">
+          <div class="text-4xl mb-4">💬</div>
+          <blockquote id="quote-display" class="text-xl text-slate-200 italic leading-relaxed">
+            "The only bad workout is the one that didn't happen."
+          </blockquote>
+        </div>
+        <button id="cta-motivated" class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-white font-heading font-bold text-lg px-8 py-3 rounded-xl shadow-lg shadow-amber-500/30 transition-all duration-150 min-h-[44px] min-w-[44px]">
+          Get Motivated ✨
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="bg-slate-800 border-t border-slate-700 py-10 px-4 text-center text-slate-400">
+    <p class="font-heading font-black text-emerald-400 text-xl mb-2">HomeFit</p>
+    <p class="text-sm mb-4">Built with 💪 for home exercisers everywhere. No gym required.</p>
+    <div class="flex justify-center gap-6 text-sm text-slate-500">
+      <span>🏋️ Strength</span>
+      <span>🏃 Cardio</span>
+      <span>🧘 Flexibility</span>
+    </div>
+    <p class="text-xs text-slate-600 mt-6">© 2024 HomeFit. All rights reserved.</p>
+  </footer>
+
+  <!-- ── Spotify Floating Widget (bottom-right corner) ── -->
   <div id="spotify-section" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
     <div id="spotify-player" class="spotify-collapsed">
-      <iframe data-testid="embed-iframe" style="display:block;border-radius:12px;width:100%;height:352px;" src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0" width="320" height="352" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe
+        src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0"
+        width="100%" height="352" style="display:block;border-radius:12px;width:100%;height:352px;"
+        frameBorder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+      </iframe>
     </div>
     <button id="spotify-toggle" aria-label="Open Spotify player" title="Open Spotify">
       <svg id="spotify-icon-open" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -405,26 +430,23 @@
     </button>
   </div>
 
+  <!-- Spotify widget toggle script (runs immediately, before DOMContentLoaded) -->
   <script>
     var spotifyExpanded = false;
-    (function () {
+    document.getElementById('spotify-toggle').addEventListener('click', function () {
+      spotifyExpanded = !spotifyExpanded;
       var player    = document.getElementById('spotify-player');
-      var toggle    = document.getElementById('spotify-toggle');
       var iconOpen  = document.getElementById('spotify-icon-open');
       var iconClose = document.getElementById('spotify-icon-close');
-
-      toggle.addEventListener('click', function () {
-        spotifyExpanded = !spotifyExpanded;
-        player.classList.toggle('spotify-collapsed', !spotifyExpanded);
-        iconOpen.style.display  = spotifyExpanded ? 'none'  : 'block';
-        iconClose.style.display = spotifyExpanded ? 'block' : 'none';
-        toggle.title = spotifyExpanded ? 'Close Spotify' : 'Open Spotify';
-        toggle.setAttribute('aria-label', spotifyExpanded ? 'Close Spotify player' : 'Open Spotify player');
-      });
-    })();
+      player.classList.toggle('spotify-collapsed', !spotifyExpanded);
+      iconOpen.style.display  = spotifyExpanded ? 'none'  : 'block';
+      iconClose.style.display = spotifyExpanded ? 'block' : 'none';
+      this.title = spotifyExpanded ? 'Close Spotify' : 'Open Spotify';
+      this.setAttribute('aria-label', spotifyExpanded ? 'Close Spotify player' : 'Open Spotify player');
+    });
   </script>
 
-  <!-- ── Scripts (dependency order) ── -->
+  <!-- ── App scripts (dependency order) ── -->
   <script src="js/data.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/workout.js"></script>
@@ -441,33 +463,13 @@
       WorkoutSessionController.init();
       MusicPlayerController.init();
       QuotesController.init();
-
-      // Init scroll observer + CTA button press effects
       AnimationHelpers.initScrollObserver();
-
-      // Apply hover lift to exercise cards (rendered by WorkoutSessionController.init above)
       AnimationHelpers.applyCardEffects();
 
-      // Wire #cta-play to also trigger music playback (in addition to scroll in nav.js)
-      var ctaPlay = document.getElementById('cta-play');
-      if (ctaPlay) {
-        ctaPlay.addEventListener('click', function () {
-          MusicPlayerController.play();
-        });
-      }
-
-      // Wire #cta-motivated to QuotesController.next()
+      // "Get Motivated" section button
       var ctaMotivated = document.getElementById('cta-motivated');
       if (ctaMotivated) {
         ctaMotivated.addEventListener('click', function () {
-          QuotesController.next();
-        });
-      }
-
-      // Wire #cta-motivated-nav (nav button) to QuotesController.next()
-      var ctaMotivatedNav = document.getElementById('cta-motivated-nav');
-      if (ctaMotivatedNav) {
-        ctaMotivatedNav.addEventListener('click', function () {
           QuotesController.next();
         });
       }
