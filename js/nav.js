@@ -12,7 +12,7 @@ const NavigationController = {
   /** @type {HTMLUListElement} */
   navLinks: null,
 
-  /** Attach all listeners and wire CTA buttons. */
+  /** Attach all listeners and wire CTA anchor links. */
   init() {
     this.nav       = document.getElementById('main-nav');
     this.hamburger = document.getElementById('hamburger');
@@ -26,14 +26,52 @@ const NavigationController = {
     // Hamburger toggle
     this.hamburger.addEventListener('click', () => this.toggleMenu());
 
-    // CTA nav buttons → smooth scroll
+    // Intercept anchor clicks for animated smooth scroll + menu close
     const ctaStart     = document.getElementById('cta-start-nav');
     const ctaPlay      = document.getElementById('cta-play');
     const ctaMotivated = document.getElementById('cta-motivated-nav');
 
-    if (ctaStart)     ctaStart.addEventListener('click',     () => this.smoothScrollTo('workout', 500));
-    if (ctaPlay)      ctaPlay.addEventListener('click',      () => this.smoothScrollTo('music',   500));
-    if (ctaMotivated) ctaMotivated.addEventListener('click', () => this.smoothScrollTo('quotes',  500));
+    if (ctaStart) {
+      ctaStart.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.smoothScrollTo('workout', 500);
+        this.closeMenu();
+      });
+    }
+
+    if (ctaPlay) {
+      ctaPlay.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Expand the Spotify widget if it isn't already open
+        var player    = document.getElementById('spotify-player');
+        var iconOpen  = document.getElementById('spotify-icon-open');
+        var iconClose = document.getElementById('spotify-icon-close');
+        var toggle    = document.getElementById('spotify-toggle');
+        if (player && player.classList.contains('spotify-collapsed')) {
+          player.classList.remove('spotify-collapsed');
+          if (iconOpen)  iconOpen.style.display  = 'none';
+          if (iconClose) iconClose.style.display = 'block';
+          if (toggle) {
+            toggle.title = 'Close Spotify';
+            toggle.setAttribute('aria-label', 'Close Spotify player');
+          }
+          // Keep the JS toggle state in sync
+          if (typeof spotifyExpanded !== 'undefined') spotifyExpanded = true;
+        }
+        // Scroll to the bottom-right widget area (spotify-section is fixed, so
+        // scroll to the music section as a visual cue instead)
+        this.smoothScrollTo('music', 500);
+        this.closeMenu();
+      });
+    }
+
+    if (ctaMotivated) {
+      ctaMotivated.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.smoothScrollTo('quotes', 500);
+        this.closeMenu();
+      });
+    }
   },
 
   /**
@@ -51,12 +89,21 @@ const NavigationController = {
   },
 
   /**
-   * Toggle the mobile nav menu by toggling the 'hidden' class on #nav-links.
+   * Toggle the mobile nav menu using the 'nav-open' class.
+   * Avoids fighting Tailwind's 'hidden' / 'lg:flex' utilities.
    * Requirement 7.5
    */
   toggleMenu() {
-    const isHidden = this.navLinks.classList.toggle('hidden');
-    this.hamburger.setAttribute('aria-expanded', String(!isHidden));
+    const isOpen = this.navLinks.classList.toggle('nav-open');
+    this.hamburger.setAttribute('aria-expanded', String(isOpen));
+  },
+
+  /** Close the mobile menu if it is open. */
+  closeMenu() {
+    if (window.innerWidth < 1024 && this.navLinks.classList.contains('nav-open')) {
+      this.navLinks.classList.remove('nav-open');
+      this.hamburger.setAttribute('aria-expanded', 'false');
+    }
   },
 
   /**
@@ -69,19 +116,12 @@ const NavigationController = {
     const target = document.getElementById(sectionId);
     if (!target) return;
 
-    // Clamp duration to the allowed range
     const duration = Math.min(700, Math.max(400, durationMs));
+    const startY   = window.scrollY;
+    const endY     = target.getBoundingClientRect().top + window.scrollY - this.nav.offsetHeight;
+    const delta    = endY - startY;
+    let startTime  = null;
 
-    const startY = window.scrollY;
-    const endY   = target.getBoundingClientRect().top + window.scrollY - this.nav.offsetHeight;
-    const delta  = endY - startY;
-    let startTime = null;
-
-    /**
-     * Ease-in-out cubic easing.
-     * @param {number} t - Progress 0–1.
-     * @returns {number}
-     */
     function easeInOutCubic(t) {
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
@@ -91,17 +131,9 @@ const NavigationController = {
       const elapsed  = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
       window.scrollTo(0, startY + delta * easeInOutCubic(progress));
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      }
+      if (progress < 1) requestAnimationFrame(step);
     }
 
     requestAnimationFrame(step);
-
-    // Close mobile menu after navigating
-    if (!this.navLinks.classList.contains('hidden') &&
-        window.innerWidth < 1024) {
-      this.toggleMenu();
-    }
   },
 };

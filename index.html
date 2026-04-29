@@ -187,16 +187,16 @@
   <!-- ── Navigation ── -->
   <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-sm shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2 py-3">
-      <span class="font-heading text-2xl font-black text-emerald-400 tracking-tight">HomeFit</span>
+      <a href="#hero" class="font-heading text-2xl font-black text-emerald-400 tracking-tight" style="text-decoration:none;">HomeFit</a>
       <button id="hamburger" class="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors min-h-[44px] min-w-[44px]" aria-label="Toggle menu" aria-expanded="false">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
-      <ul id="nav-links" class="hidden lg:flex items-center gap-3 w-full lg:w-auto">
-        <li><button id="cta-start-nav" class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Start Workout</button></li>
-        <li><button id="cta-play" class="bg-violet-500 hover:bg-violet-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Play Music</button></li>
-        <li><button id="cta-motivated-nav" class="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px]">Get Motivated</button></li>
+      <ul id="nav-links" class="nav-links-mobile lg:flex items-center gap-3 w-full lg:w-auto">
+        <li><a href="#workout" id="cta-start-nav" class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Start Workout</a></li>
+        <li><a href="#spotify-section" id="cta-play" class="bg-violet-500 hover:bg-violet-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Play Music</a></li>
+        <li><a href="#quotes" id="cta-motivated-nav" class="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-150 min-h-[44px] min-w-[44px] inline-flex items-center" style="text-decoration:none;">Get Motivated</a></li>
       </ul>
     </div>
   </nav>
@@ -295,35 +295,15 @@
         <p class="text-slate-400 mb-10">Pump up the energy with background beats.</p>
 
         <div class="bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-700">
-          <!-- Audio element — add your own src to enable playback -->
-          <audio id="bg-music" preload="none"></audio>
-
-          <!-- Equalizer (visible when playing) -->
-          <div id="equalizer" class="hidden justify-center gap-1 mb-6 text-emerald-400 h-8 items-end">
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-          </div>
-
-          <!-- Music icon (visible when not playing) -->
-          <div id="music-icon" class="text-5xl mb-6">🎵</div>
-
-          <!-- Play / Pause Button -->
-          <button id="music-play-pause" class="bg-violet-500 hover:bg-violet-400 active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px] mb-6 block mx-auto">
-            ▶ Play
+          <!-- Spotify player is available as the floating widget (bottom-right) -->
+          <div class="text-5xl mb-4">🎵</div>
+          <p class="text-slate-300 text-lg mb-6">Your Spotify playlist is ready to go.</p>
+          <button id="music-play-pause" class="bg-[#1DB954] hover:bg-[#1ed760] active:scale-95 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-150 min-h-[44px] min-w-[44px] block mx-auto" onclick="(function(){var p=document.getElementById('spotify-player');var io=document.getElementById('spotify-icon-open');var ic=document.getElementById('spotify-icon-close');var t=document.getElementById('spotify-toggle');if(p&&p.classList.contains('spotify-collapsed')){p.classList.remove('spotify-collapsed');if(io)io.style.display='none';if(ic)ic.style.display='block';if(t){t.title='Close Spotify';t.setAttribute('aria-label','Close Spotify player');}spotifyExpanded=true;}})()">
+            ▶ Open Spotify Player
           </button>
 
-          <!-- Volume Slider -->
-          <div class="flex items-center gap-3">
-            <span class="text-slate-400 text-sm">🔈</span>
-            <input id="volume-slider" type="range" min="0" max="100" value="10"
-              class="flex-1 accent-violet-500 cursor-pointer min-h-[44px]"
-              aria-label="Volume" />
-            <span class="text-slate-400 text-sm">🔊</span>
-          </div>
-
-          <!-- Fallback message (hidden by default) -->
+          <!-- Hidden audio element kept for MusicPlayerController compatibility -->
+          <audio id="bg-music" preload="none"></audio>
           <p id="audio-fallback" class="hidden mt-4 text-amber-400 text-sm">
             Audio playback is not supported in your browser.
           </p>
@@ -365,8 +345,20 @@
 
   <!-- ── Spotify Floating Widget ── -->
   <style>
+    /* ── Mobile nav toggle ── */
+    @media (max-width: 1023px) {
+      .nav-links-mobile {
+        display: none;
+        flex-direction: column;
+        padding-bottom: 0.5rem;
+      }
+      .nav-links-mobile.nav-open {
+        display: flex;
+      }
+    }
+
     #spotify-player {
-      width: 320px;
+      width: min(320px, calc(100vw - 48px));
       height: 352px;
       border-radius: 12px;
       overflow: hidden;
@@ -399,9 +391,9 @@
     }
   </style>
 
-  <div style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+  <div id="spotify-section" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
     <div id="spotify-player" class="spotify-collapsed">
-      <iframe data-testid="embed-iframe" style="display:block;border-radius:12px;" src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0" width="320" height="352" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe data-testid="embed-iframe" style="display:block;border-radius:12px;width:100%;height:352px;" src="https://open.spotify.com/embed/playlist/3DqBlkSirqoN8O0oqQGMBA?utm_source=generator&theme=0" width="320" height="352" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <button id="spotify-toggle" aria-label="Open Spotify player" title="Open Spotify">
       <svg id="spotify-icon-open" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -414,20 +406,20 @@
   </div>
 
   <script>
+    var spotifyExpanded = false;
     (function () {
       var player    = document.getElementById('spotify-player');
       var toggle    = document.getElementById('spotify-toggle');
       var iconOpen  = document.getElementById('spotify-icon-open');
       var iconClose = document.getElementById('spotify-icon-close');
-      var expanded  = false;
 
       toggle.addEventListener('click', function () {
-        expanded = !expanded;
-        player.classList.toggle('spotify-collapsed', !expanded);
-        iconOpen.style.display  = expanded ? 'none'  : 'block';
-        iconClose.style.display = expanded ? 'block' : 'none';
-        toggle.title = expanded ? 'Close Spotify' : 'Open Spotify';
-        toggle.setAttribute('aria-label', expanded ? 'Close Spotify player' : 'Open Spotify player');
+        spotifyExpanded = !spotifyExpanded;
+        player.classList.toggle('spotify-collapsed', !spotifyExpanded);
+        iconOpen.style.display  = spotifyExpanded ? 'none'  : 'block';
+        iconClose.style.display = spotifyExpanded ? 'block' : 'none';
+        toggle.title = spotifyExpanded ? 'Close Spotify' : 'Open Spotify';
+        toggle.setAttribute('aria-label', spotifyExpanded ? 'Close Spotify player' : 'Open Spotify player');
       });
     })();
   </script>
